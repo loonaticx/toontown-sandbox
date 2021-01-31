@@ -40,6 +40,12 @@ class Trajectory:
             t = 0
         return t + self.__startTime
 
+    def calcTimeOfHighestPoint(self):
+        t = -self.__startVel[2] / self.__zAcc
+        if t < 0:
+            t = 0
+        return t + self.__startTime
+
     def calcTimeOfImpactOnPlane(self, height = 0):
         a = self.__zAcc * 0.5
         b = self.__startVel[2]

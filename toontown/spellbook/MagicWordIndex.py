@@ -29,6 +29,7 @@ from toontown.toon import ToonDNA
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import TTLocalizer
+from toontown.minigame import MinigameGlobals
 
 import MagicWordConfig
 import time
@@ -208,6 +209,41 @@ class ToggleRun(MagicWord):
         toon.d_setRun()
         return "Run mode has been toggled."
 
+class RequestGame(MagicWord):
+    aliases = ["reqgame", "requestminigame", "reqminigame"]
+    desc = "Requests a trolley minigame."
+    execLocation = MagicWordConfig.EXEC_LOC_SERVER
+    arguments = [("name", str, False, "remove"), ("zoneId", int, False, 0),
+                 ("keep", bool, False, False), ("difficulty", int, False, 0)]
+
+    def handleWord(self, invoker, avId, toon, *args):
+        name = args[0]
+        zone = args[1]
+        keep = args[2]
+        difficulty = args[3]
+
+        if zone == 0:
+            zone = invoker.zoneId
+            if zone not in MinigameGlobals.SafeZones:
+                zone = 0
+        elif zone not in MinigameGlobals.SafeZones:
+            zone = ToontownGlobals.ToontownCentral
+        else:
+            return "Invalid minigame Zone ID specified!"
+
+        from toontown.minigame import MinigameCreatorAI
+        if name == 'remove':
+            if invoker.doId in MinigameCreatorAI.RequestMinigame:
+                del MinigameCreatorAI.RequestMinigame[invoker.doId]
+                return "Removed the current minigame request."
+            else:
+                return "You don't have any active minigame requests!"
+        elif name not in ToontownGlobals.MinigameNames:
+            return "Invalid minigame name specified!"
+        else:
+            MinigameCreatorAI.RequestMinigame[invoker.doId] = ToontownGlobals.MinigameNames[name], keep, difficulty,\
+                                                              zone
+            return "Your next trolley game will be the {} game!".format(name)
 
 class SetSpeed(MagicWord):
     aliases = ["speed"]
