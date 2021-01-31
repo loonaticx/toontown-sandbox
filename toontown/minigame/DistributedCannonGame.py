@@ -143,14 +143,45 @@ class DistributedCannonGame(DistributedMinigame):
         self.highPos = None
         self.endPos = None
         self.velocityText = OnscreenText(text='Velocity Meter', pos=(0.60, 0.90), fg=(1, 1, 1, 1), scale=0.05, shadow=(0, 0, 0, 1), align=TextNode.ALeft, mayChange=True)
-        self.deltaVelocityText = OnscreenText(text='Delta Velocity Meter', pos=(0.60, 0.80), fg=(1, 1, 1, 1), scale=0.05, shadow=(0, 0, 0, 1), align=TextNode.ALeft, mayChange=True)
+        #self.deltaVelocityText = OnscreenText(text='Delta Velocity Meter', pos=(0.60, 0.80), fg=(1, 1, 1, 1), scale=0.05, shadow=(0, 0, 0, 1), align=TextNode.ALeft, mayChange=True)
+        self.gameTimeText = OnscreenText(text='Game Time', pos=(0.60, 0.80), fg=(1, 1, 1, 1), scale=0.05, shadow=(0, 0, 0, 1), align=TextNode.ALeft, mayChange=True)
         self.timeImpactText = OnscreenText(text='Impact Time', pos=(0.60, 0.70), fg=(1, 1, 1, 1), scale=0.05, shadow=(0, 0, 0, 1), align=TextNode.ALeft, mayChange=True)
         self.hitText = OnscreenText(text='Toon Hit Location', pos=(0.60, 0.60), fg=(1, 1, 1, 1), scale=0.05, shadow=(0, 0, 0, 1), align=TextNode.ALeft, mayChange=True)
+        #self.cannonWillFireText = OnscreenText(text='CannonWillFire', pos=(0.60, 0.40),
+        #                                 fg=(1, 1, 1, 1), scale=0.05, shadow=(0, 0, 0, 1), align=TextNode.ALeft,
+        #                                 mayChange=True)
+        self.time2WaitText = OnscreenText(text='Time to wait...', pos=(0.60, 0.40),
+                                         fg=(1, 1, 1, 1), scale=0.05, shadow=(0, 0, 0, 1), align=TextNode.ALeft,
+                                        mayChange=True)
+
+
+        self.angleText = OnscreenText(text='Angle', pos=(0.60, 0.3),
+                                         fg=(1, 1, 1, 1), scale=0.05, shadow=(0, 0, 0, 1), align=TextNode.ALeft,
+                                         mayChange=True)
+        self.deltaAngleText = OnscreenText(text='Delta', pos=(1.0, 0.3),
+                                         fg=(1, 1, 1, 1), scale=0.05, shadow=(0, 0, 0, 1), align=TextNode.ALeft,
+                                         mayChange=True)
+        self.rotVelText = OnscreenText(text='Rotational Velocity', pos=(0.60, 0.2),
+                                         fg=(1, 1, 1, 1), scale=0.05, shadow=(0, 0, 0, 1), align=TextNode.ALeft,
+                                         mayChange=True)
+        self.deltaRotVelText = OnscreenText(text='Delta', pos=(1.0, 0.2),
+                                         fg=(1, 1, 1, 1), scale=0.05, shadow=(0, 0, 0, 1), align=TextNode.ALeft,
+                                         mayChange=True)
+
         self.velocityNP = None
         self.startVelocity = None
         self.deltaVelocity = None
         self.timepact = None
         self.water = None
+        self.gameTime = None
+        self.fireTime = None
+        self.angle = None
+        self.rotVel = None
+        self.deltaAngle = None
+        self.deltaRotVel = None
+        self.zRot = None
+        self.time2Wait = None
+        # yeah im lazy to give these proper default values lol
         from panda3d.core import NodePath
         self.lineNP = NodePath()
         self.deltaNode = NodePath()
@@ -217,6 +248,17 @@ class DistributedCannonGame(DistributedMinigame):
         del self.downButton
         del self.leftButton
         del self.rightButton
+        del self.velocityText
+        #del self.deltaVelocityText
+        del self.timeImpactText
+        del self.towerPosText
+        del self.gameTimeText
+        del self.hitText
+        del self.time2WaitText
+        del self.angleText
+        del self.deltaAngleText
+        del self.rotVelText
+        del self.deltaRotVelText
         for avId in self.toonHeadDict.keys():
             head = self.toonHeadDict[avId]
             head.stopBlink()
@@ -257,6 +299,10 @@ class DistributedCannonGame(DistributedMinigame):
             self.cannonDict[avId][0].reparentTo(render)
 
         self.towerPos = self.getTowerPosition()
+        self.towerPosText = OnscreenText(text='Tower Position: {}'.format(self.towerPos), pos=(0.60, 0.50),
+                                         fg=(1, 1, 1, 1), scale=0.05, shadow=(0, 0, 0, 1), align=TextNode.ALeft,
+                                         mayChange=False)
+
         self.tower.setPos(self.towerPos)
         self.tower.reparentTo(render)
         self.sky.reparentTo(render)
@@ -423,6 +469,7 @@ class DistributedCannonGame(DistributedMinigame):
         if not self.__playing():
             return
         self.notify.debug('setCannonWillFire: ' + str(avId) + ': zRot=' + str(zRot) + ', angle=' + str(angle) + ', time=' + str(fireTime))
+        #self.cannonWillFireText.setText('setCannonWillFire: ' + str(avId) + ': zRot=' + str(zRot) + ', angle=' + str(angle) + ', time=' + str(fireTime))
         self.cannonPositionDict[avId][0] = zRot
         self.cannonPositionDict[avId][1] = angle
         self.__updateCannonPosition(avId)
@@ -436,6 +483,10 @@ class DistributedCannonGame(DistributedMinigame):
             fireTask = task
         fireTask = task
         taskMgr.add(fireTask, 'fireCannon' + str(avId))
+        self.fireTime = fireTime
+        #self.angle = angle
+        self.zRot = zRot
+        self.time2Wait = timeToWait
         self.airborneToons += 1
 
     def announceToonWillLandInWater(self, avId, landTime):
@@ -631,6 +682,12 @@ class DistributedCannonGame(DistributedMinigame):
             self.__updateVelocityText(self.startVelocity)
             self.__updateImpactTimeText(self.timepact)
             self.__doHit(results['hitWhat'])
+            self.__doAngle(self.angle)
+            self.__doRotVel(self.rotVel)
+            self.__doGameTime(self.gameTime)
+            #self.__doWillFire(self.fireTime)
+            self.__doTime2Wait(self.time2Wait)
+            self.__doTimepact(self.timepact)
             # self.notify.debug = savedDebug
             if results['hitWhat'] == self.HIT_WATER:
                 self.line.setColor(0, 1, 0, 1)
@@ -650,6 +707,29 @@ class DistributedCannonGame(DistributedMinigame):
         elif land == self.HIT_GROUND:
             self.hitText.setText("Toon will hit ground")
             self.hitText.setFg((1, 0, 0, 1))
+
+    def __doWillFire(self, t):
+        self.cannonWillFireText.setText("Fire time: {}".format(t))
+
+    def __doTime2Wait(self, t):
+        self.time2WaitText.setText("Time to wait (game): {}".format(t))
+
+    def __doGameTime(self, t):
+        self.gameTimeText.setText("Game time: {}".format(t))
+
+    def __doTimepact(self, t):
+        self.timeImpactText.setText("Time of impact: {}".format(t))
+
+
+    def __doAngle(self, a):
+        self.angleText.setText("Angle: {}".format(a))
+        self.deltaAngleText.setText("Delta: {}".format(self.deltaAngle))
+
+    def __doRotVel(self, r):
+        self.rotVelText.setText("Rot. Velocity: {}".format(r))
+        self.deltaRotVelText.setText("Delta: {}".format(self.deltaRotVel))
+
+
 
         """
         self.notify.debug('start position: ' + str(flightResults['startPos']))
@@ -690,13 +770,13 @@ class DistributedCannonGame(DistributedMinigame):
     def __updateVelocityText(self, v):
         # if self.velocityNP is not None:
         #    self.velocityNP.removeNode()
-        if self.deltaVelocity is None:
-            self.deltaVelocity = v  # starting velocity
+        #if self.deltaVelocity is None:
+        #    self.deltaVelocity = v  # starting velocity
         self.velocityText.setText("Initial Velocity: {}".format(v))
-        if self.deltaVelocity is not v:
-            self.deltaVelocityText.setText("Delta Velocity: {}".format(self.deltaVelocity))
+        #if self.deltaVelocity is not v:
+        #    self.deltaVelocityText.setText("Delta Velocity: {}".format(self.deltaVelocity))
         # self.deltaVelocity = Point3((self.deltaVelocity.unitX() - v.unitX()), (self.deltaVelocity.unitY() - v.unitY()), (self.deltaVelocity.unitZ() - v.unitZ()))
-        self.deltaVelocity = v - self.deltaVelocity
+        #self.deltaVelocity = v - self.deltaVelocity
         # self.velocityNP = aspect2d.attachNewNode(self.velocityText)
 
     def __updateImpactTimeText(self, t):
@@ -754,6 +834,10 @@ class DistributedCannonGame(DistributedMinigame):
             self.cannonMoving = 0
             self.sndCannonMove.stop()
             self.__broadcastLocalCannonPosition()
+        self.angle = angVel
+        self.rotVel = rotVel
+        self.deltaAngle = oldAng - angVel
+        self.deltaRotVel = oldRot - rotVel
         self.__doCheat()
         return Task.cont
 
@@ -788,6 +872,8 @@ class DistributedCannonGame(DistributedMinigame):
         return angle * 360.0 / (2.0 * math.pi)
 
     def __calcFlightResults(self, avId, launchTime):
+        self.gameTime = self.getCurrentGameTime()
+
         head = self.toonHeadDict[avId]
         startPos = head.getPos(render)
         startHpr = head.getHpr(render)
