@@ -78,6 +78,17 @@ class DistributedPetAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, PetLooke
             self.pscMoveResc = PStatCollector('App:Show code:petMove:Reschedule')
         return
 
+        # these are debug functions to prepare new pets
+    def _initFakePet(self, ownerId, name, traitSeed=0,
+                     safeZone=ToontownGlobals.ToontownCentral):
+        # Initializes a 'fake' pet (not represented in the database).
+        # Call before generate.
+        self.setOwnerId(ownerId)
+        self.setPetName(name)
+        self.traits = PetTraits.PetTraits(traitSeed=traitSeed,
+                                          safeZoneId=safeZone)
+
+
     def setInactive(self):
         self.active = 0
 

@@ -157,6 +157,46 @@ class MagicWord:
 # Transform - If a word transforms you into something, we give this command the prefix of "Transform"
 # Toggle - If a word toggles something on or off, we give this command the prefix of "Toggle"
 
+
+class spamDoodle(MagicWord):
+    aliases = ["doodlespam", "stresspet"]
+    desc = "Broadcasts a message to the entire server in the form of a whisper."
+    execLocation = MagicWordConfig.EXEC_LOC_SERVER
+    arguments = [("amt", int, False, 56)]
+
+    def handleWord(self, invoker, avId, toon, *args):
+        from toontown.pets import DistributedPetAI
+        import random
+        amt = args[0]
+        #numPets = 56  # 50 friends, six Toons/acct #100 * 3 # 500 toons, 100 at estate, 3 pets per
+        zoneId = invoker.zoneId
+        for i in xrange(amt): # do xrange in python 2, range in python 3
+            pet = DistributedPetAI.DistributedPetAI(self.air)
+            # make up a fake owner doId
+            pet._initFakePet(100 + i, 'StressPet%s' % i)
+            pet.generateWithRequired(zoneId)
+            pet.setPos(random.randFloat(-30, 30), # random.uniform in py3, randFloat in py2
+                       random.randFloat(-30, 30), 0)
+            pet.b_setParent(ToontownGlobals.SPRender)
+        return "Doodles sent"
+
+
+class spamTrick(MagicWord):
+    aliases = ["trick"]
+    desc = "Broadcasts a message to the entire server in the form of a whisper."
+    execLocation = MagicWordConfig.EXEC_LOC_SERVER
+    arguments = [("amt", int, False, 20)]
+
+    def handleWord(self, invoker, avId, toon, *args):
+        # spam the nearby pets with N commands to do the 'jump' trick
+        from toontown.pets import PetObserve
+        amt = args[0]
+        for i in xrange(amt):
+            PetObserve.send(invoker.zoneId,
+                            PetObserve.getSCObserve(21200, invoker.doId))
+        return
+
+
 class SetHP(MagicWord):
     aliases = ["hp", "setlaff", "laff"]
     desc = "Sets the target's current laff."
