@@ -43,10 +43,9 @@ class TTSCGolfMenu(SCMenu):
 
     def __golfMessagesChanged(self):
         self.clearMenu()
-        try:
-            lt = base.localAvatar
-        except:
+        if not base.localAvatar:
             return
+        lt = base.localAvatar
 
         for section in GolfMenuGuide:
             if section[0] == -1:

@@ -25,10 +25,9 @@ class TTSCSillyPhaseTwoMenu(SCMenu):
 
     def __SillyPhaseTwoMessagesChanged(self):
         self.clearMenu()
-        try:
-            lt = base.localAvatar
-        except:
+        if not base.localAvatar:
             return
+        lt = base.localAvatar
 
         for section in SillyPhaseTwoMenu:
             if section[0] == -1:

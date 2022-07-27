@@ -23,10 +23,10 @@ class TTSCSillyPhaseFourMenu(SCMenu):
 
     def __SillyPhaseFourMessagesChanged(self):
         self.clearMenu()
-        try:
-            lt = base.localAvatar
-        except:
+        if not base.localAvatar:
             return
+        lt = base.localAvatar
+
 
         for section in SillyPhaseFourMenu:
             if section[0] == -1:

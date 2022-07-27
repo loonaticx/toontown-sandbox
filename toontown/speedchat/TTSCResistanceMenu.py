@@ -20,10 +20,9 @@ class TTSCResistanceMenu(SCMenu):
 
     def __resistanceMessagesChanged(self):
         self.clearMenu()
-        try:
-            lt = base.localAvatar
-        except:
+        if not base.localAvatar:
             return
+        lt = base.localAvatar
 
         phrases = lt.resistanceMessages
         for menuIndex in ResistanceChat.resistanceMenu:

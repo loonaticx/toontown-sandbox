@@ -27,10 +27,9 @@ class TTSCSingingMenu(SCMenu):
 
     def __singingMessagesChanged(self):
         self.clearMenu()
-        try:
-            lt = base.localAvatar
-        except:
+        if not base.localAvatar:
             return
+        lt = base.localAvatar
 
         for count in xrange(len(SingingMenuGuide)):
             section = SingingMenuGuide[count]

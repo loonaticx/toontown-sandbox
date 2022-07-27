@@ -38,11 +38,9 @@ class TTSCAprilToonsMenu(SCMenu):
 
     def __aprilToonsMessagesChanged(self):
         self.clearMenu()
-        try:
-            lt = base.localAvatar
-        except:
+        if not base.localAvatar:
             return
-
+        lt = base.localAvatar
         for section in AprilToonsMenu:
             if section[0] == -1:
                 for phrase in section[1]:

@@ -33,10 +33,9 @@ class TTSCJellybeanJamMenu(SCMenu):
 
     def __messagesChanged(self, phase):
         self.clearMenu()
-        try:
-            lt = base.localAvatar
-        except:
+        if not base.localAvatar:
             return
+        lt = base.localAvatar
 
         for section in JellybeanJamMenu:
             if section[0] == -1:

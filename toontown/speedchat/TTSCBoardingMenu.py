@@ -45,10 +45,9 @@ class TTSCBoardingMenu(SCMenu):
 
     def __boardingMessagesChanged(self, zoneId):
         self.clearMenu()
-        try:
-            lt = base.localAvatar
-        except:
+        if not base.localAvatar:
             return
+        lt = base.localAvatar
 
         for count in xrange(len(BoardingMenuGuide)):
             section = BoardingMenuGuide[count]

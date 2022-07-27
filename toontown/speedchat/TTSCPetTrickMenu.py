@@ -19,10 +19,9 @@ class TTSCPetTrickMenu(SCMenu):
 
     def __phrasesChanged(self, zoneId = 0):
         self.clearMenu()
-        try:
-            lt = base.localAvatar
-        except:
+        if not base.localAvatar:
             return
+        lt = base.localAvatar
 
         for trickId in lt.petTrickPhrases:
             if trickId not in PetTricks.TrickId2scIds:

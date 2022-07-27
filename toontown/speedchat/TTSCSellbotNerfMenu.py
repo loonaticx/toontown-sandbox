@@ -42,10 +42,10 @@ class TTSCSellbotNerfMenu(SCMenu):
 
     def __messagesChanged(self):
         self.clearMenu()
-        try:
-            lt = base.localAvatar
-        except:
+        if not base.localAvatar:
             return
+        lt = base.localAvatar
+
 
         for section in SellbotNerfMenu:
             if section[0] == -1:

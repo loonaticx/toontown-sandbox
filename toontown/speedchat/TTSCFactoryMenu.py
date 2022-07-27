@@ -71,10 +71,9 @@ class TTSCFactoryMenu(SCMenu):
         if self.meetMenuHolder:
             del self[0]
         self.clearMenu()
-        try:
-            lt = base.localAvatar
-        except:
+        if not base.localAvatar:
             return
+        lt = base.localAvatar
 
         phrases = []
 

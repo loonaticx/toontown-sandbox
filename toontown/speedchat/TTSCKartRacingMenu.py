@@ -81,10 +81,9 @@ class TTSCKartRacingMenu(SCMenu):
 
     def __kartRacingMessagesChanged(self):
         self.clearMenu()
-        try:
-            lt = base.localAvatar
-        except:
+        if not base.localAvatar:
             return
+        lt = base.localAvatar
 
         for section in KartRacingMenuGuide:
             if section[0] == -1:

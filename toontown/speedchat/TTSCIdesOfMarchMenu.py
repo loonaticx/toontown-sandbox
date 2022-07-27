@@ -19,10 +19,9 @@ class TTSCIdesOfMarchMenu(SCMenu):
 
     def __messagesChanged(self):
         self.clearMenu()
-        try:
-            lt = base.localAvatar
-        except:
+        if not base.localAvatar:
             return
+        lt = base.localAvatar
 
         for section in IdesOfMarchMenu:
             if section[0] == -1:

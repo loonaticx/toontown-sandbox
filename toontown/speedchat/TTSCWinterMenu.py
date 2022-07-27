@@ -25,10 +25,9 @@ class TTSCWinterMenu(SCMenu):
 
     def __messagesChanged(self, carol):
         self.clearMenu()
-        try:
-            lt = base.localAvatar
-        except:
+        if not base.localAvatar:
             return
+        lt = base.localAvatar
 
         winterMenu = []
         if carol:

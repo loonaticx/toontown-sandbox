@@ -32,10 +32,9 @@ class TTSCVictoryPartiesMenu(SCMenu):
 
     def __messagesChanged(self):
         self.clearMenu()
-        try:
-            lt = base.localAvatar
-        except:
+        if not base.localAvatar:
             return
+        lt = base.localAvatar
 
         for section in VictoryPartiesMenu:
             if section[0] == -1:
