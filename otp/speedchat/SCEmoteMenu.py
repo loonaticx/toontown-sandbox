@@ -13,11 +13,10 @@ class SCEmoteMenu(SCMenu):
 
     def __emoteAccessChanged(self):
         self.clearMenu()
-        try:
-            lt = base.localAvatar
-        except:
+        if not base.localAvatar:
             return
 
+        lt = base.localAvatar
         for i in xrange(len(lt.emoteAccess)):
             if lt.emoteAccess[i]:
                 self.append(SCEmoteTerminal(i))

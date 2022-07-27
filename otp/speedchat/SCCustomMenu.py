@@ -14,11 +14,10 @@ class SCCustomMenu(SCMenu):
 
     def __customMessagesChanged(self):
         self.clearMenu()
-        try:
-            lt = base.localAvatar
-        except:
+        if not base.localAvatar:
             return
 
+        lt = base.localAvatar
         for msgIndex in lt.customMessages:
             if msgIndex in CustomSCStrings:
                 self.append(SCCustomTerminal(msgIndex))

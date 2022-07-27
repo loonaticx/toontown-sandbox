@@ -472,6 +472,7 @@ class Toon(Avatar.Avatar, ToonHead):
 
         Avatar.Avatar.__init__(self)
         ToonHead.__init__(self)
+        self.style = None
         self.forwardSpeed = 0.0
         self.rotateSpeed = 0.0
         self.avatarType = 'toon'

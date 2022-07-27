@@ -22,11 +22,12 @@ class SCEmoteTerminal(SCTerminal):
             self.text = EmoteList[self.emoteId]
 
     def __ltHasAccess(self):
-        try:
-            lt = base.localAvatar
-            return lt.emoteAccess[self.emoteId]
-        except:
+        if not base.localAvatar:
             return 0
+
+        lt = base.localAvatar
+        return lt.emoteAccess[self.emoteId]
+
 
     def __emoteEnabled(self):
         if self.isWhispering():

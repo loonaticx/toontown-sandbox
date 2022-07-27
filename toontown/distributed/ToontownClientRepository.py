@@ -195,6 +195,8 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         self.gameServicesManager.sendAcknowledgeAvatarName(avid, lambda: self.loginFSM.request('waitForAvatarList'))
 
     def enterChooseAvatar(self, avList):
+        if base.modular:
+            return
         ModelPool.garbageCollect()
         TexturePool.garbageCollect()
         self.sendSetAvatarIdMsg(0)

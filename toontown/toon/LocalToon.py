@@ -73,6 +73,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         try:
             self.LocalToon_initialized
         except:
+            self.doId = 1
             self.LocalToon_initialized = 1
             self.numFlowers = 0
             self.maxFlowerBasket = 0
@@ -164,13 +165,18 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             if not hasattr(base.cr, 'lastLoggedIn'):
                 base.cr.lastLoggedIn = self.cr.toontownTimeManager.convertStrToToontownTime('')
             self.setLastTimeReadNews(base.cr.lastLoggedIn)
-            self.acceptingNewFriends = base.settings.getBool('game', 'accepting-new-friends', True) and base.config.GetBool('accepting-new-friends-default', True)
-            self.acceptingNonFriendWhispers = base.settings.getBool('game', 'accepting-non-friend-whispers', True) and base.config.GetBool('accepting-non-friend-whispers-default', True)
+            self.acceptingNewFriends = False
+            self.acceptingNonFriendWhispers = False
             self.physControls.event.addAgainPattern('again%in')
             self.oldPos = None
             self.questMap = None
             self.prevToonIdx = 0
             self.teleporting = False
+            self.emoteAccess = []
+            self.quests = []
+
+    def d_broadcastPosHpr(self):
+        return
 
     def wantLegacyLifter(self):
         return True

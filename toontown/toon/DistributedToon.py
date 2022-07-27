@@ -77,6 +77,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         DistributedPlayer.DistributedPlayer.__init__(self, cr)
         Toon.Toon.__init__(self)
         DistributedSmoothNode.DistributedSmoothNode.__init__(self, cr)
+        self.dna = self.style
         self.bFake = bFake
         self.kart = None
         self._isGM = False
