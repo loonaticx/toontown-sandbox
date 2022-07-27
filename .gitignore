@@ -1,4 +1,5 @@
 *.pyc
+.pyc
 *.pyo
 *.fzn
 pandac/
