@@ -32,7 +32,8 @@ class MovingPlatform(DirectObject.DirectObject, NodePath):
 
         if parentingNode == None:
             parentingNode = self
-        base.cr.parentMgr.registerParent(self.parentToken, parentingNode)
+        # print(self.parentToken)
+        # base.cr.parentMgr.registerParent(self.parentToken, parentingNode)
         self.parentingNode = parentingNode
         self.accept('enter%s' % self._name, self.__handleEnter)
         self.accept('exit%s' % self._name, self.__handleExit)
