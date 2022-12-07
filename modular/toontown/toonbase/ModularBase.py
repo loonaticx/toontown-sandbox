@@ -14,7 +14,7 @@ from toontown.toonbase import TTLocalizer
 
 
 class ModularBase(ToonBase.ToonBase):
-    def __init__(self, pipe = 'pandagl'):
+    def __init__(self, pipe = 'pandagl', wantHotkeys=True):
         self.selectedPipe = pipe
         OTPBase.__init__(self)
 
@@ -27,6 +27,39 @@ class ModularBase(ToonBase.ToonBase):
             self.loadFromSettings()
         else:
             self.settings = None
+
+        if wantHotkeys:
+            self.accept('c', self.toggleCollisions)
+            self.accept('x', self.toggleRenderCollisions)
+            self.accept('q', self.exitShow)
+            self.accept('o', base.oobe)
+            self.accept('shift-o', base.oobeCull)
+            self.accept('a', base.toggleBounds)
+            self.accept('s', base.toggleTightBounds)
+            self.accept('b', base.toggleBackface)
+            self.accept('shift-r', base.win.gsg.releaseAll)
+            self.accept('1', self.toggleGui)
+            self.accept('2', self.toggleGUIPopup)
+            self.accept('3', self.toggleFrameRateMeter)
+            self.accept('4', self.toggleSGMeter)
+            self.accept('w', base.toggleWireframe)
+            self.accept('e', base.renderModeWireframe)
+            self.accept('v', self.toggleVertexPainting)
+            self.accept('shift-v', base.toggleShowVertices)
+            self.accept('t', base.toggleTexture)
+            self.accept('shift-a', render.analyze)
+            self.accept('shift-l', render.ls)
+            self.accept('f1', base.toggleTexMem)
+
+
+        self.vertexPaintingToggled = False
+        self.renderWireframeEnabled = False
+        self.tightboundsToggled = False
+        self.boundsToggled = False
+        self.SGMeterToggled = False
+        self.collisionsToggled = False
+        self.renderCollisions = False
+        self.frameMeterEnabled = False
 
         self.localAvatar = None
         self.disableShowbaseMouse()
@@ -175,6 +208,7 @@ class ModularBase(ToonBase.ToonBase):
         base.localAvatar = lt
         from modular.distributed.FakeDCClass import FakeDCClass
         base.localAvatar.dclass = FakeDCClass()
+        # base.localAvatar.dclass = base.cr.dclassesByName['DistributedToon']
 
         from toontown.toon.ToonDNA import ToonDNA
         dna = ToonDNA()
@@ -187,6 +221,11 @@ class ModularBase(ToonBase.ToonBase):
         base.localAvatar.enableAvatarControls()
         base.localAvatar.attachCamera()
         base.localAvatar.enableRun()
+        base.localAvatar.defaultShard = 0
+        # Create a convenient global
+        __builtins__['localAvatar'] = base.localAvatar
+
+        base.localAvatar.generate()
 
     def initMarginManager(self):
         self.marginManager = MarginManager()
@@ -199,3 +238,140 @@ class ModularBase(ToonBase.ToonBase):
          mm.addGridCell(3.5, 0, -1.33333333333, 1.33333333333, -1.0, 1.0, base.a2dBottomCenter, (0.444444, 0, 0.166667)),
          mm.addGridCell(4.5, 0, -1.33333333333, 1.33333333333, -1.0, 1.0, base.a2dBottomCenter, (0.888889, 0, 0.166667))]
         self.rightCells = [mm.addGridCell(5, 2, -1.33333333333, 1.33333333333, -1.0, 1.0, base.a2dTopRight, (-0.222222, 0, -1.16667)), mm.addGridCell(5, 1, -1.33333333333, 1.33333333333, -1.0, 1.0, base.a2dTopRight, (-0.222222, 0, -1.5))]
+
+
+
+    def toggleCollisions(self):
+        base.collisionsToggled = not base.collisionsToggled
+        if not base.collisionsToggled:
+            """
+            Toggles the display of collision bounds surrounding the invoker.
+            """
+            base.cTrav.showCollisions(render)
+            base.shadowTrav.showCollisions(render)
+        else:
+            base.cTrav.hideCollisions()
+            base.shadowTrav.hideCollisions()
+
+    def toggleRenderCollisions(self):
+        """
+        Displays collision bounds for currently rendered objects.
+        """
+        print("toggleRenderCollisions")
+        base.renderCollisions = not base.renderCollisions
+        if not base.renderCollisions:
+            render.findAllMatches('**/+CollisionNode').show()
+        else:
+            render.findAllMatches('**/+CollisionNode').hide()
+
+    def toggleGUIPopup(self):
+        """
+        Debug utility function
+        """
+        if self.cr.guiPopupShown:
+            self.mouseWatcherNode.hideRegions()
+            self.cr.guiPopupShown = 0
+        else:
+            self.mouseWatcherNode.showRegions(render2d, 'gui-popup', 0)
+            self.cr.guiPopupShown = 1
+
+    def toggleOSD(self):
+        """
+        Toggle On Screen Debug functionality
+        """
+        if not base.osd:
+            self.notify.info("Enabling OSD...")
+            onScreenDebug.enabled = True
+            base.osd = True
+            self.notify.info("OSD is enabled.")
+        else:
+            self.notify.info("Disabling OSD...")
+            onScreenDebug.enabled = False
+            base.osd = False
+            self.notify.info("OSD has been disabled.")
+        return base.osd
+
+    def toggleVertexPainting(self):
+        if not base.vertexPaintingToggled:
+            render.setColor(1, 1, 1)
+            base.vertexPaintingToggled = True
+        else:
+            render.clearColor()
+            base.vertexPaintingToggled = False
+
+    def toggleTightBounds(self):
+        if not base.tightboundsToggled or base.boundsToggled:
+            for node in render.findAllMatches("**/*"):
+                node.showTightBounds()
+            base.tightboundsToggled = True
+            base.boundsToggled = False
+        else:
+            for node in render.findAllMatches("**/*"):
+                node.hideBounds()
+            base.tightboundsToggled = base.boundsToggled = False
+
+    def toggleBounds(self):
+        if not base.boundsToggled or base.tightboundsToggled:
+            for node in render.findAllMatches("**/*"):
+                node.showBounds()
+            base.boundsToggled = True
+            base.tightboundsToggled = False
+        else:
+            for node in render.findAllMatches("**/*"):
+                node.hideBounds()
+            base.boundsToggled = base.tightboundsTarget = False
+
+    def renderModeWireframe(self, red = 255, green = 0, blue = 0, alpha = 255, thickness = 1.0):
+        r = red / 255
+        g = green / 255
+        b = blue / 255
+        a = alpha / 255
+        if not base.renderWireframeEnabled:
+            for node in render.findAllMatches("**/*"):
+                node.setRenderModeFilledWireframe(LColor(r, g, b, a))
+                node.setRenderModeThickness(thickness)
+            base.renderWireframeEnabled = True
+            return "Rendered the scene with a wireframe overlay."
+        else:
+            for node in render.findAllMatches("**/*"):
+                node.setRenderModeFilled()
+            base.renderWireframeEnabled = False
+            return "Cleared wireframe."
+
+    def toggleSGMeter(self):
+        base.SGMeterToggled = not base.SGMeterToggled
+        base.setSceneGraphAnalyzerMeter(base.SGMeterToggled)
+
+    def toggleFrameRateMeter(self):
+        base.frameMeterEnabled = not base.frameMeterEnabled
+        base.setFrameRateMeter(base.frameMeterEnabled)
+
+    def enableSoftwareMousePointer(self):
+        """
+        Creates some geometry and parents it to render2d to show
+        the currently-known mouse position.  Useful if the mouse
+        pointer is invisible for some reason.
+        """
+        # this is here because showbase wants to load in the STUPID model in the root of the directory
+        mouseViz = self.render2d.attachNewNode('mouseViz')
+        lilsmiley = self.loader.loadModel('models/misc/lilsmiley')
+        lilsmiley.reparentTo(mouseViz)
+
+        aspectRatio = self.getAspectRatio()
+        # Scale the smiley face to 32x32 pixels.
+        height = self.win.getSbsLeftYSize()
+        lilsmiley.setScale(
+            32.0 / height / aspectRatio,
+            1.0, 32.0 / height)
+        self.mouseWatcherNode.setGeometry(mouseViz.node())
+
+
+    def toggleGui(self):
+        if not self.guiToggleDisabled:
+            if aspect2d.isHidden():
+                aspect2d.show()
+            else:
+                aspect2d.hide()
+
+    def resetGSG(self):
+        base.win.gsg.releaseAll()
