@@ -31,6 +31,7 @@ class DistributedFactory(DistributedLevel.DistributedLevel, FactoryBase.FactoryB
         base.localAvatar.physControls.setCollisionRayHeight(10.0)
 
     def createEntityCreator(self):
+        """Create the object that will be used to create Entities"""
         return FactoryEntityCreator.FactoryEntityCreator(level=self)
 
     def generate(self):
@@ -79,30 +80,49 @@ class DistributedFactory(DistributedLevel.DistributedLevel, FactoryBase.FactoryB
         DistributedLevel.DistributedLevel.initializeLevel(self, factorySpec)
 
     def privGotSpec(self, levelSpec):
+        """
+        Initializes level and creates all the local entities in the level.
+
+        :param LevelSpec levelSpec: The factory spec we're going to use provided from the client or AI.
+        """
         if __dev__:
+            # First, give the spec a factory EntityTypeRegistry if it doesn't have one.
             if not levelSpec.hasEntityTypeReg():
                 typeReg = self.getEntityTypeReg()
                 levelSpec.setEntityTypeReg(typeReg)
+
+        # get this event name before we init the factory
         firstSetZoneDoneEvent = self.cr.getNextSetZoneDoneEvent()
 
+        # wait until the first viz setZone completes before announcing that we're ready to go
         def handleFirstSetZoneDone():
+            # NOW we're ready.
             base.factoryReady = 1
             messenger.send('FactoryReady')
-
         self.acceptOnce(firstSetZoneDoneEvent, handleFirstSetZoneDone)
+
+        # I think this is a reasonable number to use for the model count
         modelCount = len(levelSpec.getAllEntIds())
-        loader.beginBulkLoad('factory', TTLocalizer.HeadingToFactoryTitle % TTLocalizer.FactoryNames[self.factoryId], modelCount, 1, TTLocalizer.TIP_COGHQ)
+        loader.beginBulkLoad(
+            'factory',
+            TTLocalizer.HeadingToFactoryTitle % TTLocalizer.FactoryNames[self.factoryId],
+            modelCount,
+            1,
+            TTLocalizer.TIP_COGHQ
+        )
+        # let 'er rip.
         DistributedLevel.DistributedLevel.privGotSpec(self, levelSpec)
         loader.endBulkLoad('factory')
 
         def printPos(self = self):
+            # print position of localToon relative to the zone that he's in
             pos = base.localAvatar.getPos(self.getZoneNode(self.lastToonZone))
             h = base.localAvatar.getH(self.getZoneNode(self.lastToonZone))
             print 'factory pos: %s, h: %s, zone %s' % (repr(pos), h, self.lastToonZone)
             posStr = 'X: %.3f' % pos[0] + '\nY: %.3f' % pos[1] + '\nZ: %.3f' % pos[2] + '\nH: %.3f' % h + '\nZone: %s' % str(self.lastToonZone)
             base.localAvatar.setChatAbsolute(posStr, CFThought | CFTimeout)
-
         self.accept('f2', printPos)
+
         base.localAvatar.setCameraCollisionsCanMove(1)
         self.acceptOnce('leavingFactory', self.announceLeaving)
 
