@@ -3,21 +3,37 @@ import FactoryUtil
 from direct.showbase.PythonUtil import Functor
 from toontown.toonbase import ToontownGlobals
 
+
 class FactoryLevelMgr(LevelMgr.LevelMgr):
-    InterestingLocations = [(((-866, -272, -40), -101),
-      ((-662, -242, 7.5), 0),
-      ((-20, -180, 20), 0),
-      ((-249, 258, 111), 0),
-      ((318, 241, 115), -16),
-      ((-251, 241, 109), -180),
-      ((296, 292, 703), 56),
-      ((-740, 122, 28), 90),
-      ((210, -270, 38), -90)), (((20, 21, 0), 0), ((3, 404, 39), -16), ((-496, 358, 5), 0))]
+    InterestingLocations = [
+        (
+            ((-866, -272, -40), -101),
+            ((-662, -242, 7.5), 0),
+            ((-20, -180, 20), 0),
+            ((-249, 258, 111), 0),
+            ((318, 241, 115), -16),
+            ((-251, 241, 109), -180),
+            ((296, 292, 703), 56),
+            ((-740, 122, 28), 90),
+            ((210, -270, 38), -90)
+        ),
+        (
+            ((20, 21, 0), 0), ((3, 404, 39), -16), ((-496, 358, 5), 0)
+        )
+    ]
 
     def __init__(self, level, entId):
         LevelMgr.LevelMgr.__init__(self, level, entId)
         if base.config.GetBool('want-factory-lifter', 0):
             self.toonLifter = FactoryUtil.ToonLifter('f3')
+
+        if __debug__:
+            # interesting places
+            self.ipPlacer = FactoryUtil.CyclePlacer(FactoryLevelMgr.InterestingLocations[1], 'f4-up')
+
+            # ouch button
+            self.ouchButton = FactoryUtil.Ouch('f6',
+                                               Functor(self.level.b_setOuch, 3))
         self.callSetters('farPlaneDistance')
         self.geom.reparentTo(render)
         oilRoomOil = self.geom.find('**/oilroom/room/geometry_oilroom/*oil')
