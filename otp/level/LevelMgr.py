@@ -37,10 +37,19 @@ class LevelMgr(LevelMgrBase.LevelMgrBase):
 
     def privAssignZoneIds(self):
         self.zoneNums.sort()
+        # print(self.zoneNums)
+        # print()
+        # print(self.level.zoneIds)
         for i in xrange(len(self.zoneNums)):
             zoneNum = self.zoneNums[i]
             zoneEnt = self.level.getEntity(zoneNum)
-            zoneId = self.level.zoneIds[i]
-            zoneEnt.setZoneId(zoneId)
-            self.level.zoneNum2zoneId[zoneNum] = zoneId
-            self.level.zoneId2zoneNum[zoneId] = zoneNum
+            # print(zoneEnt)
+            if not zoneEnt:
+                return
+            try:
+                zoneId = self.level.zoneIds[i]
+                zoneEnt.setZoneId(zoneId)
+                self.level.zoneNum2zoneId[zoneNum] = zoneId
+                self.level.zoneId2zoneNum[zoneId] = zoneNum
+            except:
+                return

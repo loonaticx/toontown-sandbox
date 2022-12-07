@@ -283,6 +283,8 @@ class DistributedLevel(DistributedObject.DistributedObject, Level.Level):
 
     def showZone(self, zoneNum):
         zone = self.getZoneNode(zoneNum)
+        if not zone:
+            return
         zone.unstash()
         zone.clearColor()
 
