@@ -238,8 +238,11 @@ class ToonBase(OTPBase.OTPBase):
             self.lastScreenShotTime = globalClock.getRealTime()
             return
         coordOnScreen = self.config.GetBool('screenshot-coords', 0)
-        self.localAvatar.stopThisFrame = 1
-        ctext = self.localAvatar.getAvPosStr()
+        ctext = ''
+        if hasattr(self, 'localAvatar'):
+            if self.localAvatar:
+                self.localAvatar.stopThisFrame = 1
+                ctext = self.localAvatar.getAvPosStr()
         self.screenshotStr = ''
         messenger.send('takingScreenshot')
         if coordOnScreen:

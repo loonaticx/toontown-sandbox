@@ -912,7 +912,10 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         if op == ToontownClientRepository.SetInterest:
             parentId, interestZones, name = args
             if self.old_setzone_interest_handle == None:
-                self.old_setzone_interest_handle = self.addInterest(parentId, interestZones, name, ToontownClientRepository.SetZoneDoneEvent)
+                try:
+                    self.old_setzone_interest_handle = self.addInterest(parentId, interestZones, name, ToontownClientRepository.SetZoneDoneEvent)
+                except:
+                    return
             else:
                 self.alterInterest(self.old_setzone_interest_handle, parentId, interestZones, name, ToontownClientRepository.SetZoneDoneEvent)
         elif op == ToontownClientRepository.ClearInterest:

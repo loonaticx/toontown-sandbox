@@ -91,6 +91,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             friendsButtonNormal = friendsGui.find('**/FriendsBox_Closed')
             friendsButtonPressed = friendsGui.find('**/FriendsBox_Rollover')
             friendsButtonRollover = friendsGui.find('**/FriendsBox_Rollover')
+            self.laffMeter = None
             newScale = oldScale = 0.8
             if WantNewsPage:
                 newScale = oldScale * ToontownGlobals.NewsPageScaleAdjust
